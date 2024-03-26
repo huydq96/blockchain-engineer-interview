@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract PostCovidStrokePrevention is ERC20, ERC20Burnable, Ownable {
+contract PostCovidStrokePrevention is ERC20, ERC20Burnable, Ownable(msg.sender) {
 
     mapping(uint256 => uint256) riskScoreToAward;
 
@@ -23,6 +23,10 @@ contract PostCovidStrokePrevention is ERC20, ERC20Burnable, Ownable {
     }
 
     function reward(address to, uint256 riskScore) public onlyOwner {
-        // TODO: Implement this method: Award PCSP to the user based on his/her risk score
+        // Award PCSP to the user based on his/her risk score
+        require(to != address(0), "ERC20: mint to the zero address");
+        require(riskScoreToAward[riskScore] != 0, "No reward for the risk score");
+
+        _mint(to, riskScoreToAward[riskScore]);
     }
 }

@@ -1,16 +1,17 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/utils/Counters.sol";
 import "./NFT.sol";
 import "./Token.sol";
 
 contract Controller {
-    using Counters for Counters.Counter;
-
+    // remove using Counters for Counters.Counter;
+    // https://github.com/OpenZeppelin/openzeppelin-contracts/issues/4233
+    
     //
     // STATE VARIABLES
     //
-    Counters.Counter private _sessionIdCounter;
+    uint256 private _sessionIdCounter;
     GeneNFT public geneNFT;
     PostCovidStrokePrevention public pcspToken;
 
@@ -41,8 +42,13 @@ contract Controller {
         pcspToken = PostCovidStrokePrevention(pcspAddress);
     }
 
-    function uploadData(string memory docId) public returns (uint256) {
-        // TODO: Implement this method: to start an uploading gene data session. The doc id is used to identify a unique gene profile. Also should check if the doc id has been submited to the system before. This method return the session id
+    function uploadData(string memory docId) public docNotSubmited(docId) returns (uint256) {
+        uint256 currentSessionId = _sessionIdCounter;
+        sessions[currentSessionId] = UploadSession(currentSessionId, msg.sender, "", false);
+        _sessionIdCounter += 1;
+        emit UploadData(docId, currentSessionId);
+
+        return currentSessionId;
     }
 
     function confirm(
@@ -51,18 +57,24 @@ contract Controller {
         string memory proof,
         uint256 sessionId,
         uint256 riskScore
-    ) public {
+    ) public docNotSubmited(docId) validSession(sessionId) {
         // TODO: Implement this method: The proof here is used to verify that the result is returned from a valid computation on the gene data. For simplicity, we will skip the proof verification in this implementation. The gene data's owner will receive a NFT as a ownership certicate for his/her gene profile.
 
         // TODO: Verify proof, we can skip this step
 
-        // TODO: Update doc content
+        // Update doc content
+        docSubmits[docId] = true;
+        docs[docId] = DataDoc(docId, contentHash);
 
-        // TODO: Mint NFT 
+        // Mint NFT
+        uint256 tokenId = geneNFT.safeMint(msg.sender);
+        nftDocs[tokenId] = docId;
 
-        // TODO: Reward PCSP token based on risk stroke
+        // Reward PCSP token based on risk stroke
+        pcspToken.reward(msg.sender, riskScore);
 
-        // TODO: Close session
+        // Close session
+        sessions[sessionId] = UploadSession(sessionId, msg.sender, proof, true);
     }
 
     function getSession(uint256 sessionId) public view returns(UploadSession memory) {
@@ -71,5 +83,16 @@ contract Controller {
 
     function getDoc(string memory docId) public view returns(DataDoc memory) {
         return docs[docId];
+    }
+
+    modifier docNotSubmited(string memory docId) {
+        require(!docSubmits[docId], "Doc already been submitted");
+        _;
+    }
+
+    modifier validSession(uint256 sessionId) {
+        require(sessions[sessionId].user == msg.sender, "Invalid session owner");
+        require(!sessions[sessionId].confirmed, "Session is ended");
+        _;
     }
 }
