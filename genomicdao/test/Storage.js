@@ -29,6 +29,12 @@ describe("Controller", function () {
       )
         .to.emit(controller, "UploadData")
         .withArgs("doc1", 0)
+      
+      await expect(
+        controller.uploadData("doc2")
+      )
+        .to.emit(controller, "UploadData")
+        .withArgs("doc2", 1)
     })
 
     it("Should fail if the doc is submited", async function () {
