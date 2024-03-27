@@ -7,10 +7,17 @@ async function main() {
 
     console.log("Account balance:", (await deployer.provider.getBalance(deployer.address)).toString());
 
-    const Token = await ethers.getContractFactory("PostCovidStrokePrevention");
-    const token = await Token.deploy();
+    const NTFToken = await ethers.getContractFactory("GeneNFT");
+    const ntfToken = await NTFToken.deploy();
+    console.log("NTF Token address:", ntfToken.target);
 
-    console.log("Token address:", token.target);
+    const PCSPToken = await ethers.getContractFactory("PostCovidStrokePrevention");
+    const pcspToken = await PCSPToken.deploy();
+    console.log("PCSP Token address:", pcspToken.target);
+
+    const Controller = await ethers.getContractFactory("Controller");
+    const controller = await Controller.deploy(ntfToken.target, pcspToken.target);
+    console.log("Controller address:", controller.target);
 }
 
 main()

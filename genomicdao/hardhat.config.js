@@ -6,7 +6,7 @@ module.exports = {
   solidity: "0.8.20",
   networks: {
     sepolia_test: {
-      url: `https://optimism-sepolia.infura.io/v3/${process.env.API_KEY}`,
+      url: process.env.NETWORK_URL,
       accounts: [process.env.PRIVATE_KEY]
     },
   },
