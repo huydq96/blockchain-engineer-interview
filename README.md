@@ -195,6 +195,14 @@ cd ~/optimism/op-proposer
 ```
 
 
+## How to deploy
+- Go to `/genomicdao/` folder
+- Create `.env` file base on `.env.example` file
+- Modify the values in the `.env` file
+- Run command: `npx hardhat run scripts/deploy.js --network deploy_network`
+- You can verify your deployment by following [hardhat verify guides](https://hardhat.org/ignition/docs/guides/verify)
+
+
 ## File structure
 ```
 genomicdao/                 # Directory contains main
