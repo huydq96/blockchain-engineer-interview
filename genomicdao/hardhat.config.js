@@ -5,7 +5,7 @@ require("dotenv").config();
 module.exports = {
   solidity: "0.8.20",
   networks: {
-    sepolia_test: {
+    deploy_network: {
       url: process.env.NETWORK_URL,
       accounts: [process.env.PRIVATE_KEY]
     },
