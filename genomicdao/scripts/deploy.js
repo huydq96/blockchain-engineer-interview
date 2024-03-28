@@ -17,6 +17,10 @@ async function main() {
 
     const Controller = await ethers.getContractFactory("Controller");
     const controller = await Controller.deploy(ntfToken.target, pcspToken.target);
+
+    await ntfToken.transferOwnership(controller.target);
+    await pcspToken.transferOwnership(controller.target);
+
     console.log("Controller address:", controller.target);
 }
 
